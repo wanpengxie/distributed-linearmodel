@@ -111,6 +111,21 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
+tests/CMakeFiles/io_test.dir/rule:
+	cd /tmp/distributed-linearmodel && $(MAKE) -f CMakeFiles/Makefile2 tests/CMakeFiles/io_test.dir/rule
+.PHONY : tests/CMakeFiles/io_test.dir/rule
+
+# Convenience name for target.
+io_test: tests/CMakeFiles/io_test.dir/rule
+
+.PHONY : io_test
+
+# fast build rule for target.
+io_test/fast:
+	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/io_test.dir/build.make tests/CMakeFiles/io_test.dir/build
+.PHONY : io_test/fast
+
+# Convenience name for target.
 tests/CMakeFiles/metric_test.dir/rule:
 	cd /tmp/distributed-linearmodel && $(MAKE) -f CMakeFiles/Makefile2 tests/CMakeFiles/metric_test.dir/rule
 .PHONY : tests/CMakeFiles/metric_test.dir/rule
@@ -140,32 +155,32 @@ config_test/fast:
 	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/config_test.dir/build.make tests/CMakeFiles/config_test.dir/build
 .PHONY : config_test/fast
 
-__/src/conf/config.pb.o: __/src/conf/config.pb.cc.o
+__/include/conf/config.pb.o: __/include/conf/config.pb.cc.o
 
-.PHONY : __/src/conf/config.pb.o
+.PHONY : __/include/conf/config.pb.o
 
 # target to build an object file
-__/src/conf/config.pb.cc.o:
-	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/config_test.dir/build.make tests/CMakeFiles/config_test.dir/__/src/conf/config.pb.cc.o
-.PHONY : __/src/conf/config.pb.cc.o
+__/include/conf/config.pb.cc.o:
+	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/config_test.dir/build.make tests/CMakeFiles/config_test.dir/__/include/conf/config.pb.cc.o
+.PHONY : __/include/conf/config.pb.cc.o
 
-__/src/conf/config.pb.i: __/src/conf/config.pb.cc.i
+__/include/conf/config.pb.i: __/include/conf/config.pb.cc.i
 
-.PHONY : __/src/conf/config.pb.i
+.PHONY : __/include/conf/config.pb.i
 
 # target to preprocess a source file
-__/src/conf/config.pb.cc.i:
-	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/config_test.dir/build.make tests/CMakeFiles/config_test.dir/__/src/conf/config.pb.cc.i
-.PHONY : __/src/conf/config.pb.cc.i
+__/include/conf/config.pb.cc.i:
+	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/config_test.dir/build.make tests/CMakeFiles/config_test.dir/__/include/conf/config.pb.cc.i
+.PHONY : __/include/conf/config.pb.cc.i
 
-__/src/conf/config.pb.s: __/src/conf/config.pb.cc.s
+__/include/conf/config.pb.s: __/include/conf/config.pb.cc.s
 
-.PHONY : __/src/conf/config.pb.s
+.PHONY : __/include/conf/config.pb.s
 
 # target to generate assembly for a file
-__/src/conf/config.pb.cc.s:
-	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/config_test.dir/build.make tests/CMakeFiles/config_test.dir/__/src/conf/config.pb.cc.s
-.PHONY : __/src/conf/config.pb.cc.s
+__/include/conf/config.pb.cc.s:
+	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/config_test.dir/build.make tests/CMakeFiles/config_test.dir/__/include/conf/config.pb.cc.s
+.PHONY : __/include/conf/config.pb.cc.s
 
 conf/config_test.o: conf/config_test.cpp.o
 
@@ -193,6 +208,33 @@ conf/config_test.s: conf/config_test.cpp.s
 conf/config_test.cpp.s:
 	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/config_test.dir/build.make tests/CMakeFiles/config_test.dir/conf/config_test.cpp.s
 .PHONY : conf/config_test.cpp.s
+
+io/io_test.o: io/io_test.cpp.o
+
+.PHONY : io/io_test.o
+
+# target to build an object file
+io/io_test.cpp.o:
+	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/io_test.dir/build.make tests/CMakeFiles/io_test.dir/io/io_test.cpp.o
+.PHONY : io/io_test.cpp.o
+
+io/io_test.i: io/io_test.cpp.i
+
+.PHONY : io/io_test.i
+
+# target to preprocess a source file
+io/io_test.cpp.i:
+	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/io_test.dir/build.make tests/CMakeFiles/io_test.dir/io/io_test.cpp.i
+.PHONY : io/io_test.cpp.i
+
+io/io_test.s: io/io_test.cpp.s
+
+.PHONY : io/io_test.s
+
+# target to generate assembly for a file
+io/io_test.cpp.s:
+	cd /tmp/distributed-linearmodel && $(MAKE) -f tests/CMakeFiles/io_test.dir/build.make tests/CMakeFiles/io_test.dir/io/io_test.cpp.s
+.PHONY : io/io_test.cpp.s
 
 metric/metric_test.o: metric/metric_test.cpp.o
 
@@ -229,14 +271,18 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
+	@echo "... io_test"
 	@echo "... metric_test"
 	@echo "... config_test"
-	@echo "... __/src/conf/config.pb.o"
-	@echo "... __/src/conf/config.pb.i"
-	@echo "... __/src/conf/config.pb.s"
+	@echo "... __/include/conf/config.pb.o"
+	@echo "... __/include/conf/config.pb.i"
+	@echo "... __/include/conf/config.pb.s"
 	@echo "... conf/config_test.o"
 	@echo "... conf/config_test.i"
 	@echo "... conf/config_test.s"
+	@echo "... io/io_test.o"
+	@echo "... io/io_test.i"
+	@echo "... io/io_test.s"
 	@echo "... metric/metric_test.o"
 	@echo "... metric/metric_test.i"
 	@echo "... metric/metric_test.s"

@@ -21,6 +21,15 @@ using namespace ps;
 const static uint64_t BIAS = 0;
 const static int BIASID = 1000;
 
+enum MODELCOMMANDS {
+  UNKNOWN = 1,
+  TRAIN = 2,
+  TEST = 3,
+  LOAD = 4,
+  LOADINC = 5,
+  SAVE = 6,
+};
+
 const std::string currentDateTime() {
   time_t now = time(0);
   struct tm tstruct;
@@ -82,30 +91,24 @@ struct Sample {
   }
 };
 
-extern void CollectKeys(std::vector<std::shared_ptr<Sample>> &samples,
-                        std::vector<Key> &keys, std::vector<int> &slots,
+void CollectKeys(std::vector<std::shared_ptr<Sample>> &samples,
+                        std::vector<Key> &keys,
                         WMap &model, int emb) {
   model.clear();
-  // bias term
   keys.push_back(BIAS);
-  slots.push_back(BIASID);
-  auto bias = std::make_shared<ParamterW<float>>(emb);
+  auto bias = std::make_shared<ParamterWeight<float>>(emb);
   bias->show_ = samples.size();
-  bias->slot_id_ = BIASID;
   model[BIAS] = bias;
 
   for (auto const &sample : samples) {
     for (size_t i(0); i < sample->fea_ids_.size(); ++i) {
       auto fid = sample->fea_ids_[i];
-      auto slot = sample->slot_ids_[i];
       if (model.find(fid) == model.end()) {
-        auto pms = std::make_shared<ParamterW<float>>(emb);
+        auto pms = std::make_shared<ParamterWeight<float>>(emb);
         model[fid] = pms;
         keys.push_back(fid);
-        slots.push_back(slot);
       }
       model[fid]->show_ += 1;
-      model[fid]->slot_id_ = slot;
     }
   }
   std::sort(keys.begin(), keys.end());
@@ -113,13 +116,13 @@ extern void CollectKeys(std::vector<std::shared_ptr<Sample>> &samples,
 
 template <typename V>
 void KVtoMap(std::vector<Key> &keys, std::vector<V> &weights,
-             std::unordered_map<Key, std::shared_ptr<ParamterW<V>>> model) {
+             std::unordered_map<Key, std::shared_ptr<ParamterWeight<V>>> model) {
   size_t dim = weights.size() / keys.size();
   for (size_t i = 0; i < keys.size(); i++) {
     size_t start_index = i * dim;
     Key key = keys[i];
     CHECK_NE(model.find(key), model.end());
-    std::shared_ptr<ParamterW<V>> pms = model[key];
+    std::shared_ptr<ParamterWeight<V>> pms = model[key];
     CHECK_EQ(pms->embedding_.size(), dim);
     CHECK_EQ(pms->grads_.size(), dim);
     for (size_t j = 0; j < dim; j++) {

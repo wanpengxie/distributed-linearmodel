@@ -14,7 +14,7 @@ add_definitions('-std=c++11')
 include_directories(
         "${PROJECT_SOURCE_DIR}/ps-lite/include"
         "${PROJECT_BINARY_DIR}/include"
-        "${PROJECT_SOURCE_DIR}/src/conf"
+        "include/conf"
 )
 
 

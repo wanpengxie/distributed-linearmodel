@@ -215,6 +215,19 @@ kv_app_multi_workers_test/fast:
 .PHONY : kv_app_multi_workers_test/fast
 
 #=============================================================================
+# Target rules for targets named io_test
+
+# Build rule for target.
+io_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 io_test
+.PHONY : io_test
+
+# fast build rule for target.
+io_test/fast:
+	$(MAKE) -f tests/CMakeFiles/io_test.dir/build.make tests/CMakeFiles/io_test.dir/build
+.PHONY : io_test/fast
+
+#=============================================================================
 # Target rules for targets named metric_test
 
 # Build rule for target.
@@ -283,6 +296,7 @@ help:
 	@echo "... kv_app_test"
 	@echo "... kv_app_benchmark_test"
 	@echo "... kv_app_multi_workers_test"
+	@echo "... io_test"
 	@echo "... metric_test"
 	@echo "... config_test"
 	@echo "... src/main.o"
