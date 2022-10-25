@@ -18,6 +18,7 @@
 
 namespace dist_linear_model{
 struct Worker {
+  Worker() {};
   Worker(std::shared_ptr<ModelConfig> config, int app_id=0, int customer_id=0) {
     kv_w_ = std::make_shared<ps::KVWorker<float>>(0, 0);
 

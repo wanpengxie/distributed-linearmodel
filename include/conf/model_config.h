@@ -43,6 +43,7 @@ struct FieldConfig {
 };
 
 struct ModelConfig {
+  std::string model_name_;
   size_t dim_;
   size_t batch_size_;
   size_t async_step_;

@@ -5,17 +5,29 @@
 #include <functional>
 #include <random>
 
-#include "base/utils.h"
 #include "io/files.h"
 #include "model_config.h"
 #include "ps/base.h"
 #include "ps/ps.h"
-#include "lr_model.h"
 #include "server.h"
+#include "model.h"
+#include "lr_model.h"
+#include "fm_model.h"
+#include "ffm_model.h"
 
 
 using namespace ps;
 using namespace dist_linear_model;
+
+std::shared_ptr<Worker> create_model(std::shared_ptr<ModelConfig> config) {
+  if (config->model_name_ == "lr") {
+    return std::make_shared<LRModel>(config);
+  } else if (config->model_name_ == "fm") {
+    return std::make_shared<FMModel>(config);
+  } else if (config->model_name_ == "ffm") {
+    return std::make_shared<FFMModel>(config);
+  }
+}
 
 // server is the same for all model
 void start_server(std::shared_ptr<ModelConfig> config) {
@@ -34,7 +46,7 @@ void start_server(std::shared_ptr<ModelConfig> config) {
 // worker depends on different model
 void start_worker(std::shared_ptr<ModelConfig> config) {
   auto epoch = GetEnv("EPOCH", 1);
-  auto worker = new LRWorker(config);
+  auto worker = create_model(config);
   if (!config->load_inc_model_path_.empty() || !config->load_model_path_.empty()) {
     LOG(INFO) << "load model " << config->load_inc_model_path_;
     worker->Load();
@@ -63,6 +75,7 @@ void start_worker(std::shared_ptr<ModelConfig> config) {
     LOG(INFO) << "======end save=====";
   }
 }
+
 
 int main(int argc, char *argv[]) {
   ps::Start(0);

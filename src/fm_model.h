@@ -2,12 +2,13 @@
 // Created by xiewanpeng on 2022/10/25.
 //
 
-#ifndef DISTLM_SRC_LR_MODEL_H_
-#define DISTLM_SRC_LR_MODEL_H_
+#ifndef DISTLM_SRC_FM_MODEL_H_
+#define DISTLM_SRC_FM_MODEL_H_
 #include "model.h"
 
 namespace dist_linear_model {
 struct FMModel : Worker {
+  FMModel(std::shared_ptr<ModelConfig> config, int app_id=0, int customer_id=0) : Worker(config, app_id, customer_id) {};
   void calc_score(std::vector<float>& scores, std::vector<std::shared_ptr<Sample>>& samples, WMap& weight_map) override;
   void calc_score_fm(std::vector<float>& scores, std::vector<std::shared_ptr<Sample>>& samples, WMap& weight_map,
                      std::vector<std::vector<float>>& weight_sum);
@@ -105,4 +106,4 @@ void FMModel::calc_loss_and_gradient(std::vector<float>& gradient,
   }
 }
 }
-#endif  // DISTLM_SRC_LR_MODEL_H_
+#endif  // DISTLM_SRC_FM_MODEL_H_
