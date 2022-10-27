@@ -5,47 +5,35 @@ enum VectorType {
   BIAS = 0;
   LEFT = 1;  // left = query
   RIGHT = 2; // right = index
-  VLEFT = 3;
-  VRIGHT = 4;
 }
 
-message FtrlConfig{
+message OptimConfig {
   float l1 = 1;
   float l2 = 2;
   float alpha = 3;
   float beta = 4;
-  float fm_alpha = 5;
-  float fm_beta = 6;
-  float fm_l1 = 7;
-  float fm_l2 = 8;
+  float emb_alpha = 5;
+  float emb_beta = 6;
+  float emb_l1 = 7;
+  float emb_l2 = 8;
+  uint32 emb_size = 9;
 }
 
-message SlotConfig{
+message FeatureConfig {
   uint64 slot_id = 1;
   string name = 2;
-  FtrlConfig slot_config = 3;
-  VectorType vec_type = 4;
-  uint32 filter_count = 5;
-  int32 cross = 6;
+  VectorType vec_type = 3;
+  int32 cross = 4;
 }
 
 message AllConfig{
-  uint32 embedding_dim=1;
+  OptimConfig optim_config = 1;
+  repeated FeatureConfig feature_list = 2;
+  bool is_feature_signed = 3;
+  bool group_sparse = 4;
 
-  FtrlConfig ftrl_config = 2;
-  repeated SlotConfig slot_whitelist = 3;
-
-  bool need_output_model = 4;
-  string save_model_path = 5;
-  string save_inc_model_path = 6;
-  string load_model_path = 7;
-  string load_inc_model_path = 8;
-
-  repeated string train_path_list = 9;
-  repeated string test_path_list = 10;
-
-  // global filter threshold
-  uint32 filter_count = 11;
-  uint32 delay_step = 12;
-  // label weight
+  repeated string train_list = 5;
+  repeated string predict_list = 6;
+  string save_path = 7;
+  string load_path = 8;
 }

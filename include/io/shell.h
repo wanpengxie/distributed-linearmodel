@@ -58,7 +58,8 @@ void CloseOpenFdsInternal() {
   char buffer[sizeof(linux_dirent)];
   for (;;) {
     int bytes;
-    CHECK((bytes = syscall(SYS_getdents, dir_fd, (linux_dirent*)buffer, sizeof(buffer))) >= 0);
+//    CHECK((bytes = syscall(SYS_getdents, dir_fd, (linux_dirent*)buffer, sizeof(buffer))) >= 0);
+    CHECK((bytes = syscall(SYS_getdents64, dir_fd, (linux_dirent*)buffer, sizeof(buffer))) >= 0);
     if (bytes == 0) {
       break;
     }
