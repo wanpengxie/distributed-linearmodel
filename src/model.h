@@ -83,12 +83,8 @@ void Worker::Train()  {
 void Worker::Load() {
   //	auto recv_ids = kServerGroup;
   //	kv_w_->Wait(kv_w_->Request(sparse_dist::LOAD, "", recv_ids));
-  bool inc=true;
-  auto model_dir = config_->load_inc_model_path_;
-  if (model_dir.empty()) {
-    model_dir = config_->load_model_path_;
-    inc=false;
-  }
+  bool inc=false;
+  auto model_dir = config_->load_model_path_;
   CHECK(!model_dir.empty());
   auto model_files = ListFile(model_dir);
   for (int i=0; i<model_files.size(); ++i) {

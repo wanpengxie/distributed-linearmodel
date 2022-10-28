@@ -11,7 +11,7 @@
 int main(int argc, char* argv[]) {
   std::string path = argv[1];
   auto conf = std::make_shared<dist_linear_model::ModelConfig>();
-  dist_linear_model::NewModelConf(path, conf);
+  dist_linear_model::NewModelConf(path, conf, false);
   LOG(INFO) << conf->batch_size_ << "|" << conf->train_config_->alpha_ << "|" << conf->train_path_list_[0] << "|"
             << conf->test_path_list_[0];
 

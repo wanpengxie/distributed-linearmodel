@@ -6,7 +6,7 @@
 #include <random>
 
 #include "io/files.h"
-#include "model_config.h"
+#include "conf/model_config.h"
 #include "ps/base.h"
 #include "ps/ps.h"
 #include "server.h"
@@ -47,8 +47,8 @@ void start_server(std::shared_ptr<ModelConfig> config) {
 void start_worker(std::shared_ptr<ModelConfig> config) {
   auto epoch = GetEnv("EPOCH", 1);
   auto worker = create_model(config);
-  if (!config->load_inc_model_path_.empty() || !config->load_model_path_.empty()) {
-    LOG(INFO) << "load model " << config->load_inc_model_path_;
+  if (!config->load_model_path_.empty()) {
+    LOG(INFO) << "load model " << config->load_model_path_;
     worker->Load();
     ps::Postoffice::Get()->Barrier(0, kWorkerGroup);
     LOG(INFO) << "======finish load, start next step=====" ;
@@ -68,7 +68,7 @@ void start_worker(std::shared_ptr<ModelConfig> config) {
     ps::Postoffice::Get()->Barrier(0, kWorkerGroup);
     LOG(INFO) << "======end to test=====" ;
   }
-  if (!config->save_inc_model_path_.empty() || !config->save_model_path_.empty()) {
+  if (!config->save_model_path_.empty()) {
     LOG(INFO) << "======start to save=====";
     worker->Save();
     ps::Postoffice::Get()->Barrier(0, kWorkerGroup);
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
   std::string config_file = GetEnv("CONF", "");
   auto config = std::make_shared<ModelConfig>();;
   CHECK(LocalExist(config_file)) << "config file not exist, path=" << config_file;
-  CHECK(NewModelConf(config_file, config));
+  CHECK(NewModelConf(config_file, config, true));
 
   if (ps::IsScheduler()) {
     std::cout << "test schedule" << std::endl;
