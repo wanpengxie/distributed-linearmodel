@@ -34,12 +34,9 @@ bool is_dir(const std::string& path) {
   if (stat(path.c_str(), &s) == 0) {
     if (s.st_mode & S_IFDIR) {
       return true;
-    } else if (s.st_mode & S_IFREG) {
-      return false;
-    } else {
-      // somthing else?
     }
   }
+  return false;
 }
 
 std::shared_ptr<FILE> LocalOpenRead(std::string path) {

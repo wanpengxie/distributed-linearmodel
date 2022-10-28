@@ -159,14 +159,6 @@ inline float sigmoid(float x) {
   return std::max(std::min(res, max_sigmoid), min_sigmoid);
 }
 
-std::string print_vector(std::vector<int> const &input) {
-  std::string line = "";
-  for (int i = 0; i < input.size(); i++) {
-    line = line + std::to_string(input[i]) + ", ";
-  }
-  return line;
-}
-
 template <typename V>
 std::string to_line(const V* input, int size,
                            const char delim = ' ') {
@@ -182,6 +174,11 @@ std::string to_line(const V* input, int size,
 template <typename V>
 std::string to_line(std::vector<V> vec) {
   return to_line(vec.data(), vec.size(), ',');
+}
+
+template <typename V>
+std::string print_vector(std::vector<V> const &input) {
+  return to_line(input, input.size(), ',');
 }
 }
 #endif //DISTRIBUTED_LINEARMODEL_UTILS_H
