@@ -9,6 +9,7 @@
 #include "conf/model_config.h"
 #include "data/dataloader.h"
 #include "data/datawriter.h"
+#include "random"
 
 
 namespace dist_linear_model {
@@ -22,6 +23,7 @@ struct DistributedServer {
       dim_ = 0;
     } else if (config_->model_name_ == "fm") {
       dim_ = config_ ->dim_;
+      norm_ = sqrt(static_cast<float>(dim_));
     } else if (config_->model_name_ == "ffm"){
       int field = 0;
       for (auto x : config_->slot_lists_) {
@@ -30,12 +32,16 @@ struct DistributedServer {
         }
       }
       dim_ = config_->dim_ * field;
+      norm_ = static_cast<float>(dim_);
     }
     dim_ = dim_ + 1;
     alpha_ = train_config_->alpha_;
     beta_ = train_config_->beta_;
     l1_ = train_config_->l1_;
     l2_ = train_config_->l2_;
+    uint32_t seed = ps::GetEnv("SEED", 999);
+    srand(seed);
+
     LOG(INFO) << "server " << id_ << " start, dim=" << dim_ << std::endl;
   }
 
@@ -102,7 +108,7 @@ struct DistributedServer {
       pm = std::make_shared<Paramter<float>>();
       pm->embedding_.resize(dim_, 0);
       if (!eval) {
-        pm->random_initial(dim_);
+        pm->random_initial(dim_, norm_);
         store_[key] = pm;
       }
     } else {
@@ -220,6 +226,7 @@ struct DistributedServer {
   float beta_;
   float l1_;
   float l2_;
+  float norm_;
 };
 }
 #endif  // DISTLM_SRC_DIST_MODEL_H_

@@ -52,6 +52,20 @@ struct Paramter {
     embedding_n.resize(n, 0.0);
     embedding_z.resize(n, 0.0);
     embedding_.resize(n, 0.0);
+    for (int i=0; i<n; i++) {
+      float w = rand()/(RAND_MAX * 1.0);
+      embedding_[i] = (w-0.5);
+    }
+  }
+
+  void random_initial(int n, float norm) {
+    embedding_n.resize(n, 0.0);
+    embedding_z.resize(n, 0.0);
+    embedding_.resize(n, 0.0);
+    for (int i=0; i<n; i++) {
+      float w = rand()/(RAND_MAX * 1.0);
+      embedding_[i] = (w-0.5)/norm;
+    }
   }
 
   void zero_initial(int n) {
