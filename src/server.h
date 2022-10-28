@@ -18,7 +18,19 @@ struct DistributedServer {
     id_ = ps::MyRank();
     config_ = config;
     train_config_ = config_->train_config_;
-    dim_ = config->dim_; // dim_ = 1 (bias term) + d (embedding term)
+    if (config_->model_name_ == "lr") {
+      dim_ = 0;
+    } else if (config_->model_name_ == "fm") {
+      dim_ = config_ ->dim_;
+    } else if (config_->model_name_ == "ffm"){
+      int field = 0;
+      for (auto x : config_->slot_lists_) {
+        if (x.cross() > 0) {
+          field = MAX(field, x.cross());
+        }
+      }
+      dim_ = config_->dim_ * field;
+    }
     alpha_ = train_config_->alpha_;
     beta_ = train_config_->beta_;
     l1_ = train_config_->l1_;
@@ -59,7 +71,6 @@ struct DistributedServer {
 
     if (!req_meta.pull) {
       CHECK_EQ(val_n, req_data.vals.size());
-      CHECK_EQ(req_data.lens.size(), n);
     } else {
       res.keys = req_data.keys;
       res.vals.resize(val_n);
