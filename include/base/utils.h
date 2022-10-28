@@ -167,17 +167,21 @@ std::string print_vector(std::vector<int> const &input) {
   return line;
 }
 
-std::string vector_to_line(const std::vector<float> &input,
+template <typename V>
+std::string to_line(const V* input, int size,
                            const char delim = ' ') {
-  if (input.size() == 0) {
+  if (size == 0) {
     return "";
   }
-  std::string line = std::to_string(input[0]);
-  for (int i = 1; i < input.size(); i++) {
-    line = line + delim + std::to_string(input[i]);
-  }
-  return line;
+  std::stringstream ss;
+  for (int i = 0; i < size-1; ++i) ss << input[i] << ",";
+  ss << input[size-1];
+  return ss.str();
 }
 
+template <typename V>
+std::string to_line(std::vector<V> vec) {
+  return to_line(vec.data(), vec.size(), ',');
+}
 }
 #endif //DISTRIBUTED_LINEARMODEL_UTILS_H
