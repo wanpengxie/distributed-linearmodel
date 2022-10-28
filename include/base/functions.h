@@ -15,6 +15,7 @@
 #include <memory>
 #include <fstream>
 
+namespace dist_linear_model {
 bool glob(const std::string& pattern, std::vector<std::string>& list) {
   using namespace std;
   // glob struct resides on the stack
@@ -22,7 +23,7 @@ bool glob(const std::string& pattern, std::vector<std::string>& list) {
   memset(&glob_result, 0, sizeof(glob_result));
 
   int return_value = glob(pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
-  if(return_value != 0) {
+  if (return_value != 0) {
     globfree(&glob_result);
     stringstream ss;
     ss << "glob() failed with return_value " << return_value << endl;
@@ -30,7 +31,7 @@ bool glob(const std::string& pattern, std::vector<std::string>& list) {
   }
 
   // collect all the filenames into a std::list<std::string>
-  for(size_t i = 0; i < glob_result.gl_pathc; ++i) {
+  for (size_t i = 0; i < glob_result.gl_pathc; ++i) {
     list.push_back(string(glob_result.gl_pathv[i]));
   }
   // cleanup
@@ -38,5 +39,5 @@ bool glob(const std::string& pattern, std::vector<std::string>& list) {
   // done
   return true;
 }
-
+}
 #endif  // DISTLM_INCLUDE_BASE_FUNCTIONS_H_

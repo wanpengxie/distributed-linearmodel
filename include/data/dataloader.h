@@ -1,6 +1,8 @@
 //
 // Created by xiewanpeng on 2022/10/25.
 //
+#ifndef DISTLM_INCLUDE_DATA_DATALOADER
+#define DISTLM_INCLUDE_DATA_DATALOADER
 
 #include <string>
 #include <vector>
@@ -87,3 +89,4 @@ bool DataLoader::parseSample(std::string& line,
   return true;
 }
 }
+#endif  // DISTLM_INCLUDE_DATA_DATALOADER

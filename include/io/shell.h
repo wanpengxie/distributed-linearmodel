@@ -17,31 +17,24 @@
 #include "ps/ps.h"
 #include "line_file_reader.h"
 
-
+namespace dist_linear_model {
 inline bool& ShellVerboseInternal() {
   static bool x = false;
   return x;
 }
 
-bool ShellVerbose() {
-  return ShellVerboseInternal();
-}
+bool ShellVerbose() { return ShellVerboseInternal(); }
 
-void ShellSetVerbose(bool x) {
-  ShellVerboseInternal() = x;
-}
+void ShellSetVerbose(bool x) { ShellVerboseInternal() = x; }
 
 // open file
-std::shared_ptr<FILE> ShellFopen(
-    const std::string& path, const std::string& mode) {
+std::shared_ptr<FILE> ShellFopen(const std::string& path,
+                                 const std::string& mode) {
   FILE* fp;
   //  CHECK_EQ(fp, NULL);
   CHECK(fp = fopen(path.c_str(), mode.c_str()))
       << "path[" << path << "], mode[" << mode << "]";
-  return {fp, [path](FILE* fp) {
-            CHECK_EQ(0, fclose(fp));
-          }
-  };
+  return {fp, [path](FILE* fp) { CHECK_EQ(0, fclose(fp)); }};
 }
 
 // Close all open file descriptors
@@ -58,8 +51,9 @@ void CloseOpenFdsInternal() {
   char buffer[sizeof(linux_dirent)];
   for (;;) {
     int bytes;
-//    CHECK((bytes = syscall(SYS_getdents, dir_fd, (linux_dirent*)buffer, sizeof(buffer))) >= 0);
-    CHECK((bytes = syscall(SYS_getdents64, dir_fd, (linux_dirent*)buffer, sizeof(buffer))) >= 0);
+    //    CHECK((bytes = syscall(SYS_getdents, dir_fd, (linux_dirent*)buffer, sizeof(buffer))) >= 0);
+    CHECK((bytes = syscall(SYS_getdents64, dir_fd, (linux_dirent*)buffer,
+                           sizeof(buffer))) >= 0);
     if (bytes == 0) {
       break;
     }
@@ -80,8 +74,8 @@ void CloseOpenFdsInternal() {
   close(dir_fd);
 }
 
-int ShellPopenForkInternal(
-    const char* real_cmd, bool do_read, int parent_end, int child_end) {
+int ShellPopenForkInternal(const char* real_cmd, bool do_read, int parent_end,
+                           int child_end) {
   int child_pid;
   // But vfork() is very dangerous. Be careful.
   CHECK((child_pid = vfork()) >= 0);
@@ -102,8 +96,8 @@ int ShellPopenForkInternal(
 }
 
 // open pipe
-std::shared_ptr<FILE> ShellPopen(
-    const std::string& cmd, const std::string& mode) {
+std::shared_ptr<FILE> ShellPopen(const std::string& cmd,
+                                 const std::string& mode) {
   bool do_read = mode == "r";
   bool do_write = mode == "w";
   CHECK(do_read || do_write);
@@ -124,8 +118,8 @@ std::shared_ptr<FILE> ShellPopen(
     child_end = pipe_fds[0];
   }
 
-  int child_pid = ShellPopenForkInternal(
-      real_cmd.c_str(), do_read, parent_end, child_end);
+  int child_pid =
+      ShellPopenForkInternal(real_cmd.c_str(), do_read, parent_end, child_end);
 
   close(child_end);
   fcntl(parent_end, F_SETFD, FD_CLOEXEC);
@@ -138,12 +132,11 @@ std::shared_ptr<FILE> ShellPopen(
     CHECK(fclose(fp) == 0);
     int wstatus, ret;
     do {
-      CHECK((ret = waitpid(child_pid, &wstatus, 0)) >= 0
-            || (ret == -1 && errno == EINTR));
+      CHECK((ret = waitpid(child_pid, &wstatus, 0)) >= 0 ||
+            (ret == -1 && errno == EINTR));
     } while (ret == -1 && errno == EINTR);
-    CHECK(wstatus == 0
-          || wstatus == (128 + SIGPIPE) * 256
-          || (wstatus == -1 && errno == ECHILD));
+    CHECK(wstatus == 0 || wstatus == (128 + SIGPIPE) * 256 ||
+          (wstatus == -1 && errno == ECHILD));
     if (wstatus == -1 && errno == ECHILD) {
       LOG(WARNING) << "errno is ECHILD";
     }
@@ -151,9 +144,9 @@ std::shared_ptr<FILE> ShellPopen(
   return ret_value;
 }
 
-std::shared_ptr<FILE> FsOpenInternal(
-    const std::string& path, bool is_pipe,
-    const std::string& mode, size_t buffer_size) {
+std::shared_ptr<FILE> FsOpenInternal(const std::string& path, bool is_pipe,
+                                     const std::string& mode,
+                                     size_t buffer_size) {
   std::shared_ptr<FILE> fp;
   if (!is_pipe) {
     fp = ShellFopen(path, mode);
@@ -172,9 +165,7 @@ std::shared_ptr<FILE> FsOpenInternal(
   return fp;
 }
 
-void ShellExecute(const std::string& cmd) {
-  ShellPopen(cmd, "w");
-}
+void ShellExecute(const std::string& cmd) { ShellPopen(cmd, "w"); }
 //
 std::string ShellGetCommandOutput(const std::string& cmd) {
   std::shared_ptr<FILE> pipe = ShellPopen(cmd, "r");
@@ -183,6 +174,7 @@ std::string ShellGetCommandOutput(const std::string& cmd) {
     return reader.Get();
   }
   return "";
+}
 }
 
 #endif  // DISTLM_INCLUDE_IO_SHELL_H_

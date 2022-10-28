@@ -18,6 +18,7 @@
 #include "base/string_algo.h"
 #include "shell.h"
 
+namespace dist_linear_model {
 static const uint64_t BUFFERSIZE = 100000;
 
 bool is_hdfs(std::string path) {
@@ -29,18 +30,12 @@ bool is_hdfs(std::string path) {
 
 bool is_dir(const std::string& path) {
   struct stat s;
-  if( stat(path.c_str(), &s) == 0 )
-  {
-    if( s.st_mode & S_IFDIR )
-    {
+  if (stat(path.c_str(), &s) == 0) {
+    if (s.st_mode & S_IFDIR) {
       return true;
-    }
-    else if( s.st_mode & S_IFREG )
-    {
+    } else if (s.st_mode & S_IFREG) {
       return false;
-    }
-    else
-    {
+    } else {
       // somthing else?
     }
   }
@@ -52,11 +47,9 @@ std::shared_ptr<FILE> LocalOpenRead(std::string path) {
 
 std::shared_ptr<FILE> HdfsOpenRead(std::string path) {
   if (endsWith(path, ".gz") || endsWith(path, ".snappy")) {
-    path = string_format(
-        "hadoop fs -text \"%s\"", path.c_str());
+    path = string_format("hadoop fs -text \"%s\"", path.c_str());
   } else {
-    path = string_format(
-        "hadoop fs -cat \"%s\"", path.c_str());
+    path = string_format("hadoop fs -cat \"%s\"", path.c_str());
   }
   bool is_pipe = true;
   return FsOpenInternal(path, is_pipe, "r", BUFFERSIZE);
@@ -65,7 +58,7 @@ std::shared_ptr<FILE> HdfsOpenRead(std::string path) {
 std::shared_ptr<FILE> OpenFile(std::string path) {
   if (is_hdfs(path)) {
     return HdfsOpenRead(path);
-  }  else {
+  } else {
     return LocalOpenRead(path);
   }
 }
@@ -92,7 +85,7 @@ std::shared_ptr<FILE> OpenWrite(std::string path) {
 }
 
 // string to uint64_t, split by any ^[0-9] char
-void CustomAtoi(const char *str, uint64_t *val, int *index) {
+void CustomAtoi(const char* str, uint64_t* val, int* index) {
   while (*str && *str >= '0' && *str <= '9') {
     *val = *val * 10 + (*str++ - '0');
     (*index)++;
@@ -106,7 +99,7 @@ bool glob(const std::string& pattern, std::vector<std::string>& list) {
   memset(&glob_result, 0, sizeof(glob_result));
 
   int return_value = glob(pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
-  if(return_value != 0) {
+  if (return_value != 0) {
     globfree(&glob_result);
     stringstream ss;
     ss << "glob() failed with return_value " << return_value << endl;
@@ -114,7 +107,7 @@ bool glob(const std::string& pattern, std::vector<std::string>& list) {
   }
 
   // collect all the filenames into a std::list<std::string>
-  for(size_t i = 0; i < glob_result.gl_pathc; ++i) {
+  for (size_t i = 0; i < glob_result.gl_pathc; ++i) {
     list.push_back(string(glob_result.gl_pathv[i]));
   }
   // cleanup
@@ -137,9 +130,9 @@ std::vector<std::string> ListFile(const std::string& path) {
       std::vector<std::string> line;
       splitString(std::string(reader.Get()), delim, line);
       if (line.size() >= 8) {
-        list.push_back(line[line.size()-1]);
+        list.push_back(line[line.size() - 1]);
       } else {
-        //do nothing
+        // do nothing
       }
     }
   } else {
@@ -156,8 +149,7 @@ std::vector<std::string> ListFile(const std::string& path) {
 // hdfs related
 bool HdfsTouchz(const std::string& path) {
   std::string test = ShellGetCommandOutput(
-      string_format("hadoop fs -touchz  %s ; echo $?",
-                    path.c_str()));
+      string_format("hadoop fs -touchz  %s ; echo $?", path.c_str()));
   if (string_trim(test) == "0") {
     return true;
   }
@@ -173,7 +165,7 @@ bool HdfsExists(const std::string& path) {
   return false;
 }
 
-bool LocalExist (const std::string& name) {
+bool LocalExist(const std::string& name) {
   std::ifstream f(name.c_str());
   return f.good();
 }
@@ -216,6 +208,7 @@ bool Mkdir(const std::string& path) {
       return false;
     }
   }
+}
 }
 
 #endif  // DISTLM_INCLUDE_IO_FILES_H_

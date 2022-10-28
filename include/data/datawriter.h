@@ -1,7 +1,8 @@
 //
 // Created by xiewanpeng on 2022/10/25.
 //
-
+#ifndef DISTLM_INCLUDE_DATA_DataWriter
+#define DISTLM_INCLUDE_DATA_DataWriter
 
 #include <string>
 
@@ -29,3 +30,5 @@ void DataWriter::WriteLine(std::string &line, bool new_line) {
   }
 }
 }
+
+#endif // DISTLM_INCLUDE_DATA_DataWriter

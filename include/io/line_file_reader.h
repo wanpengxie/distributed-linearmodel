@@ -13,7 +13,8 @@ private: \
 #include <cstdio>
 #include "ps/base.h"
 
-class LineFileReader  {
+namespace dist_linear_model {
+class LineFileReader {
  public:
   LineFileReader();
   ~LineFileReader();
@@ -23,6 +24,7 @@ class LineFileReader  {
   size_t Length();
 
   DECLARE_UNCOPYABLE(LineFileReader);
+
  private:
   char* buffer_ = NULL;
   size_t buffer_size_ = 0;
@@ -30,12 +32,8 @@ class LineFileReader  {
 };
 
 LineFileReader::LineFileReader() {}
-LineFileReader::~LineFileReader() {
-  ::free(buffer_);
-}
-char* LineFileReader::GetLine(FILE* f) {
-  return this->GetDelim(f, '\n');
-}
+LineFileReader::~LineFileReader() { ::free(buffer_); }
+char* LineFileReader::GetLine(FILE* f) { return this->GetDelim(f, '\n'); }
 char* LineFileReader::GetDelim(FILE* f, char delim) {
   ssize_t ret = ::getdelim(&buffer_, &buffer_size_, delim, f);
   if (ret >= 0) {
@@ -50,11 +48,8 @@ char* LineFileReader::GetDelim(FILE* f, char delim) {
     return NULL;
   }
 }
-char* LineFileReader::Get() {
-  return buffer_;
-}
-size_t LineFileReader::Length() {
-  return length_;
+char* LineFileReader::Get() { return buffer_; }
+size_t LineFileReader::Length() { return length_; }
 }
 
 #endif  // DISTLM_INCLUDE_IO_LINE_FILE_READER_H_
