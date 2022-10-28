@@ -79,7 +79,6 @@ void FFMModel::calc_score_ffm(std::vector<float>& scores, std::vector<std::share
       weight_sum[index] = ffm_weight_vec;
     }
   }
-  LOG(INFO) << "scores: " << to_line(scores);
 }
 
 float FFMModel::calc_ffm_inner_product(std::vector<float> ffm_vec, float norm_sum) {
@@ -169,8 +168,6 @@ void FFMModel::calc_loss_and_gradient(std::vector<float>& gradient,
         gradient[i*dim] = grad / static_cast<float>(batch);
     }
   }
-  LOG(INFO) << "scores: " << to_line(scores);
-  LOG(INFO) << "gradients: " << to_line(gradient);
 }
 }
 #endif  // DISTLM_SRC_FFM_MODEL_H_

@@ -92,17 +92,13 @@ struct DistributedServer {
         for (size_t j = 0; j < dim_; j++) {
           res.vals[i*dim_+j] = pm->embedding_[j];
         }
-        LOG(INFO) << "key=" << key << ", emb=" << to_line(pm->embedding_);
       }
 
       if (req_meta.push) {
         int start_index = i * dim_ ;
-        LOG(INFO) << "key=" << key << ", before update emb=" << to_line(pm->embedding_);
         ftrl_update(pm, req_data.vals, start_index);
-        LOG(INFO) << "key=" << key << ", after update emb=" << to_line(pm->embedding_);
       }
     }
-    LOG(INFO) << "req_data" << to_line(&req_data.vals, req_data.vals.size());
     return;
   }
 

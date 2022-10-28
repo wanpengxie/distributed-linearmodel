@@ -58,7 +58,6 @@ void FMModel::calc_score_fm(std::vector<float>& scores, std::vector<std::shared_
     s += 0.5 * (sum_norm - norm_sum);
     scores[index] = sigmoid(s);
   }
-  LOG(INFO) << "scores: " << to_line(scores);
 }
 
 void FMModel::calc_loss_and_gradient(std::vector<float>& gradient,
@@ -111,8 +110,6 @@ void FMModel::calc_loss_and_gradient(std::vector<float>& gradient,
         gradient[i*dim] = grad / static_cast<float>(batch);
     }
   }
-  LOG(INFO) << "scores: " << to_line(scores);
-  LOG(INFO) << "gradients: " << to_line(gradient);
 }
 }
 #endif  // DISTLM_SRC_FM_MODEL_H_
