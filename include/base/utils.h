@@ -28,6 +28,7 @@ enum MODELCOMMANDS {
   LOAD = 4,
   LOADINC = 5,
   SAVE = 6,
+  LOGGER = 7,
 };
 
 const std::string currentDateTime() {
