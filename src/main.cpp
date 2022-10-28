@@ -76,6 +76,15 @@ void start_worker(std::shared_ptr<ModelConfig> config) {
   }
 }
 
+void ReqHandle(const SimpleData& req, SimpleApp* app) {
+  LOG(INFO) << "scheduler log" << req.body;
+  app->Response(req);
+}
+
+void start_scheduler() {
+  auto scheduler = new KVServer<float>(0);
+  scheduler->SimpleApp::set_request_handle(ReqHandle);
+}
 
 int main(int argc, char *argv[]) {
   ps::Start(0);

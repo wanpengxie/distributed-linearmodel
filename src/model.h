@@ -72,6 +72,13 @@ void Worker::Train()  {
         file_list.push_back(file_list_all[i]);
       }
     }
+
+    // debug on message
+    std::string info = string_format("worker %d report, train on: %s", id_, file_list[0].c_str());
+    auto ts = kv_w_->Request(UNKNOWN, info, kScheduler);
+    kv_w_->Wait(ts);
+
+
     // train on single file
     for (auto p : file_list) {
       LOG(INFO) << "start to train: " << p << ", at worker: " << id_ << std::endl;
