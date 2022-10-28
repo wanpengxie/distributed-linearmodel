@@ -111,7 +111,6 @@ def main():
 
     run_cmd = '{0}'.format(os.path.join(job_dir_path, os.path.basename(args.binary_file)))
     run_cmd = 'source hadoop_env.sh && cd {0}'.format(job_dir_path) + ' && {env_line} && ' + run_cmd
-
     hostlist = args.host_list.split(',')
     local = hostlist[0]
     hosts = []

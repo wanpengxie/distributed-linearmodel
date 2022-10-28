@@ -1,11 +1,12 @@
 # distributed-linearmodel
 
-## Requirement
-cmake >= 3.13
-protobuf >= 3.15.0
-gcc >= 4.8.5
+## Requirements
+```text
+cmake >= 3.13  
+protobuf >= 3.15.0  
+gcc >= 4.8.5  
 python2 >= 2.7.11
-
+```
 ## build
 ```shell
 git clone --recursive https://github.com/wanpengxie/distributed-linearmodel.git
