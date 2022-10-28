@@ -13,13 +13,13 @@ struct FFMModel : public Worker {
       : Worker(config, app_id, customer_id) {
         LOG(INFO) << "USING FFM model" << std::endl;
         // initial ffm model
-        full_dimension_ = 0;
+        single_field_dim_ = config->dim_;
         field_size_ = 0;
         for (auto feature : config->slot_lists_) {
           slot_to_field_[feature.slot_id()] = feature.cross();
           field_size_ = MAX(field_size_, feature.cross());
         }
-        full_dimension_ = field_size_ * emb_dim_;
+        emb_dim_ = field_size_ * single_field_dim_;
       };
   ~FFMModel(){};
   float calc_ffm_inner_product(std::vector<float> ffm_vec, float norm_sum);
@@ -30,7 +30,7 @@ struct FFMModel : public Worker {
                               std::vector<std::shared_ptr<Sample>>& samples,
                               std::vector<Key>& keys, WMap& model) override;
   std::unordered_map<int, int> slot_to_field_;
-  int full_dimension_;
+  int single_field_dim_;
   int field_size_;
 };
 
@@ -43,11 +43,11 @@ void FFMModel::calc_score(std::vector<float>& scores, std::vector<std::shared_pt
 void FFMModel::calc_score_ffm(std::vector<float>& scores, std::vector<std::shared_ptr<Sample>>& samples, WMap& weight_map,
                    std::vector<std::vector<float>>& weight_sum) {
   float bias = weight_map[BIAS]->embedding_[0];
-  std::vector<float> ffm_grad_vec(full_dimension_, 0.0);
+  std::vector<float> ffm_grad_vec(emb_dim_ + 1, 0.0);
 
   for (size_t index=0; index<samples.size(); index++) {
     auto sample = samples[index];
-    std::vector<float> ffm_weight_vec(full_dimension_ * field_size_, 0.0);
+    std::vector<float> ffm_weight_vec(emb_dim_ * field_size_, 0.0);
 
     float norm_sum = 0.0;
     float s = bias;
@@ -58,16 +58,16 @@ void FFMModel::calc_score_ffm(std::vector<float>& scores, std::vector<std::share
       int field = slot_to_field_[slot];
 
       auto weight_vec = weight_map[fid]->embedding_;
-      CHECK_EQ(weight_vec.size(), full_dimension_ + 1);
+      CHECK_EQ(weight_vec.size(), emb_dim_ + 1);
       s += weight_vec[0];
       if (field == 0) {
         continue ;
       }
-      int field_start_index = full_dimension_ * (field-1);
-      for (size_t j=0; j<full_dimension_; j++) {
+      int field_start_index = emb_dim_ * (field-1);
+      for (size_t j=0; j<emb_dim_; j++) {
         float w = weight_vec[1+j];
         ffm_weight_vec[field_start_index+j] += w;
-        if ((j/emb_dim_) == (field-1)) {
+        if ((j/single_field_dim_) == (field-1)) {
           norm_sum += w*w;
         }
       }
@@ -81,19 +81,19 @@ void FFMModel::calc_score_ffm(std::vector<float>& scores, std::vector<std::share
 }
 
 float FFMModel::calc_ffm_inner_product(std::vector<float> ffm_vec, float norm_sum) {
-  CHECK_EQ(ffm_vec.size(), full_dimension_*field_size_);
+  CHECK_EQ(ffm_vec.size(), emb_dim_*field_size_);
   float s = 0.0;
   for (size_t field_i=0; field_i<field_size_; field_i++) {
-    int field_i_vec_start_index = field_i * full_dimension_;
+    int field_i_vec_start_index = field_i * emb_dim_;
     for (size_t field_j=field_i; field_j<field_size_; field_j++) {
-      int field_j_vec_start_index = field_j * full_dimension_;
-      int field_i_start = field_i_vec_start_index + field_j * emb_dim_;
-      int field_j_start = field_j_vec_start_index + field_i * emb_dim_;
+      int field_j_vec_start_index = field_j * emb_dim_;
+      int field_i_start = field_i_vec_start_index + field_j * single_field_dim_;
+      int field_j_start = field_j_vec_start_index + field_i * single_field_dim_;
       float val = 1.0;
       if (field_i == field_j) {
         val = 0.5;
       }
-      for (size_t i=0; i<emb_dim_; i++) {
+      for (size_t i=0; i<single_field_dim_; i++) {
         s += ffm_vec[field_i_start+i] * ffm_vec[field_j_start+i] * val;
       }
     }
@@ -104,12 +104,12 @@ void FFMModel::calc_loss_and_gradient(std::vector<float>& gradient,
                                      std::vector<std::shared_ptr<Sample>>& samples,
                                      std::vector<Key>& keys, WMap& model) {
   std::vector<float> local_g(samples.size(), 0);
-  auto dim = full_dimension_+1;
+  auto dim = emb_dim_+1;
   float total_g = 0.0;
 
   std::vector<std::vector<float>> weight_sum;
   for (size_t i=0; i<samples.size(); i++) {
-    std::vector<float> sample_weight_sum(emb_dim_, 0);
+    std::vector<float> sample_weight_sum(0, 0);
     weight_sum.push_back(sample_weight_sum);
   }
   std::vector<float> scores(samples.size(), 0);
@@ -138,10 +138,10 @@ void FFMModel::calc_loss_and_gradient(std::vector<float>& gradient,
         continue ;
       }
 
-      for (size_t j=0; j<full_dimension_; j++) {
-        int field_i = j / emb_dim_;
-        int index_j = j % emb_dim_;
-        int daul_ffm_start_index = field_i * full_dimension_ + feature_field * emb_dim_;
+      for (size_t j=0; j<emb_dim_; j++) {
+        int field_i = j / single_field_dim_;
+        int index_j = j % single_field_dim_;
+        int daul_ffm_start_index = field_i * emb_dim_ + feature_field * single_field_dim_;
         gpm->grads_[j+1] += g * ffm_field_vec[daul_ffm_start_index + index_j];
 
         // for fm part, remove self interaction

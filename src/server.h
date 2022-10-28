@@ -31,6 +31,7 @@ struct DistributedServer {
       }
       dim_ = config_->dim_ * field;
     }
+    dim_ = dim_ + 1;
     alpha_ = train_config_->alpha_;
     beta_ = train_config_->beta_;
     l1_ = train_config_->l1_;
@@ -67,7 +68,7 @@ struct DistributedServer {
                          KVPairs<float> &res,
                          bool eval = false) {
     size_t n = req_data.keys.size();
-    size_t val_n = n * (dim_+1);
+    size_t val_n = n * dim_;
 
     if (!req_meta.pull) {
       CHECK_EQ(val_n, req_data.vals.size());

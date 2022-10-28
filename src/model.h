@@ -210,11 +210,13 @@ void Worker::test_file(std::string &test_path,
   auto reader = DataLoader(test_path, 1024);
   std::vector<std::shared_ptr<Sample>> samples;
   WMap local_model;
+  int dimension =  emb_dim_ + 1;
+
   while (reader.GetSamples(samples)) {
     std::vector<Key> keys;
     local_model.clear();
-    CollectKeys(samples, keys, local_model, emb_dim_);
-    std::vector<float> w(keys.size() * emb_dim_);
+    CollectKeys(samples, keys, local_model, dimension);
+    std::vector<float> w(keys.size() * dimension);
     kv_w_->Wait(kv_w_->Pull(keys, &(w), nullptr,TEST));
     KVtoMap(keys, w, local_model);
 
