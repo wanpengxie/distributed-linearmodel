@@ -73,16 +73,12 @@ void Worker::Train()  {
       }
     }
 
-    // debug on message
-    std::string info = string_format("worker %d report, train on: %s", id_, file_list[0].c_str());
-    auto ts = kv_w_->Request(UNKNOWN, info, kScheduler);
-    kv_w_->Wait(ts);
-
-
     // train on single file
     for (auto p : file_list) {
+      std::string info = string_format("worker=%d start: %s", id_, file_list[0].c_str());
+      auto ts = kv_w_->Request(LOGGER, info, kScheduler);
+      kv_w_->Wait(ts);
       LOG(INFO) << "start to train: " << p << ", at worker: " << id_ << std::endl;
-      sleep(1);
       train_file(p);
     }
   }
@@ -101,7 +97,12 @@ void Worker::Load() {
       continue;
     }
     auto path = model_files[i];
+
+    std::string info = string_format("worker=%d load: %s", id_, path.c_str());
+    auto ts = kv_w_->Request(LOGGER, info, kScheduler);
+    kv_w_->Wait(ts);
     LOG(INFO) << "worker=" << id_ << " start to load file: " << path;
+
     load_file(path, inc);
   }
 }
@@ -183,12 +184,22 @@ void Worker::Test() {
   for (auto dir : config_->test_path_list_) {
     std::vector<std::string> files = ListFile(dir);
     for (auto f : files) {
+      std::string info = string_format("worker=%d test: %s", id_, f.c_str());
+      auto ts = kv_w_->Request(LOGGER, info, kScheduler);
+      kv_w_->Wait(ts);
+
       test_file(f, labels, scores);
     }
   }
   LOG(INFO) << "test sample size: " << labels.size();
-  LOG(INFO) << "test auc: " << CalcAuc(labels, scores)
-            << ", test loss: " << BinayLoss(labels, scores, "mean");
+  float auc = CalcAuc(labels, scores);
+  float loss = BinayLoss(labels, scores, "mean");
+  LOG(INFO) << "test auc: " << auc
+            << ", test loss: " << loss;
+
+  std::string info = string_format("auc=%f, loss=%f", auc, loss);
+  auto ts = kv_w_->Request(LOGGER, info, kScheduler);
+  kv_w_->Wait(ts);
 }
 
 void Worker::train_file(std::string &path) {

@@ -77,7 +77,7 @@ void start_worker(std::shared_ptr<ModelConfig> config) {
 }
 
 void ReqHandle(const SimpleData& req, SimpleApp* app) {
-  LOG(INFO) << "scheduler log" << req.body;
+  LOG(INFO) << req.body;
   app->Response(req);
 }
 
@@ -95,6 +95,7 @@ int main(int argc, char *argv[]) {
 
   if (ps::IsScheduler()) {
     std::cout << "start schedule" << std::endl;
+    start_scheduler();
   }
 
   if (ps::IsServer()) {
