@@ -27,13 +27,14 @@ message FeatureConfig {
 }
 
 message AllConfig{
-  OptimConfig optim_config = 1;
-  repeated FeatureConfig feature_list = 2;
-  bool is_feature_signed = 3;
-  bool group_sparse = 4;
+  string model_name = 1;
+  OptimConfig optim_config = 2;
+  repeated FeatureConfig feature_list = 3;
+  bool is_feature_signed = 4;
+  bool group_sparse = 5;
 
-  repeated string train_list = 5;
-  repeated string predict_list = 6;
-  string save_path = 7;
-  string load_path = 8;
+  repeated string train_list = 6;
+  repeated string predict_list = 7;
+  string save_path = 8;
+  string load_path = 9;
 }

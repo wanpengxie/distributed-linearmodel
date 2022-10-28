@@ -1,5 +1,6 @@
 #!/bin/bash
 # set -x
+set -e
 if [ $# -lt 3 ]; then
     echo "usage: $0 num_servers num_workers bin [args..]"
     exit 255;
@@ -7,13 +8,14 @@ fi
 
 export BATCH_SIZE=256
 export ALPHA="0.3"
-export CONF="../run/demo.conf"
+export CONF="./run/demo.conf"
+
+bin=$1
+shift
 
 export DMLC_NUM_SERVER=$1
 shift
 export DMLC_NUM_WORKER=$1
-shift
-bin=$1
 shift
 arg="$@"
 
@@ -40,7 +42,6 @@ export DMLC_ROLE='worker'
 for ((i=0; i<${DMLC_NUM_WORKER}; ++i)); do
     echo worker $i
     ${bin} ${arg} > log/${binary_name}_worker_${i} 2>&1 &
-    # ${bin} ${arg} &
 done
 
 wait

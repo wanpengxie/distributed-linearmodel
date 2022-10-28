@@ -19,15 +19,15 @@
 using namespace ps;
 using namespace dist_linear_model;
 
-//std::shared_ptr<Worker> create_model(std::shared_ptr<ModelConfig> config) {
-//  if (config->model_name_ == "lr") {
-//    return std::make_shared<LRModel>(config);
-//  } else if (config->model_name_ == "fm") {
-//    return std::make_shared<FMModel>(config);
-//  } else if (config->model_name_ == "ffm") {
-//    return std::make_shared<FFMModel>(config);
-//  }
-//}
+std::shared_ptr<Worker> create_model(std::shared_ptr<ModelConfig> config) {
+  if (config->model_name_ == "lr") {
+    return std::make_shared<LRModel>(config);
+  } else if (config->model_name_ == "fm") {
+    return std::make_shared<FMModel>(config);
+  } else if (config->model_name_ == "ffm") {
+    return std::make_shared<FFMModel>(config);
+  }
+}
 
 // server is the same for all model
 void start_server(std::shared_ptr<ModelConfig> config) {
@@ -46,8 +46,7 @@ void start_server(std::shared_ptr<ModelConfig> config) {
 // worker depends on different model
 void start_worker(std::shared_ptr<ModelConfig> config) {
   auto epoch = GetEnv("EPOCH", 1);
-//  auto worker = create_model(config);
-  auto worker = std::make_shared<LRModel>(config);
+  auto worker = create_model(config);
   if (!config->load_model_path_.empty()) {
     LOG(INFO) << "load model " << config->load_model_path_;
     worker->Load();

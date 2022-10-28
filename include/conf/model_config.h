@@ -86,6 +86,7 @@ bool NewModelConf(std::string path, std::shared_ptr<ModelConfig> model_config, b
   if (!stat) {
     return false;
   }
+  model_config->model_name_ = config.model_name();
   model_config->dim_ = config.optim_config().emb_size();
 
   model_config->train_config_ =
