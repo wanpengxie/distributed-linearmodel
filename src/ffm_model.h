@@ -98,6 +98,7 @@ float FFMModel::calc_ffm_inner_product(std::vector<float> ffm_vec, float norm_su
       }
     }
   }
+  return s;
 }
 
 void FFMModel::calc_loss_and_gradient(std::vector<float>& gradient,
