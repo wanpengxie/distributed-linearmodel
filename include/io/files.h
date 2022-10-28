@@ -23,7 +23,7 @@ namespace dist_linear_model {
 static const uint64_t BUFFERSIZE = 100000;
 
 bool is_hdfs(std::string path) {
-  if (startsWith(path, "hdfs:")) {
+  if (startsWith(path, "hdfs:") || startsWith(path, "obs:")) {
     return true;
   }
   return false;
