@@ -4,12 +4,17 @@
 
 #ifndef DISTLM_SRC_LR_MODEL_H_
 #define DISTLM_SRC_LR_MODEL_H_
+#include "ps/ps.h"
 #include "model.h"
 
 namespace dist_linear_model {
 class LRModel : public Worker {
  public:
-  LRModel(std::shared_ptr<ModelConfig> config, int app_id=0, int customer_id=0) : Worker(config, app_id, customer_id) {};
+  LRModel(std::shared_ptr<ModelConfig> config, int app_id=0, int customer_id=0)
+      : Worker(config, app_id, customer_id) {
+            LOG(INFO) << "USING LR model" << std::endl;
+            emb_dim_ = 0;
+        };
   ~LRModel() {};
   void calc_score(std::vector<float>& scores, std::vector<std::shared_ptr<Sample>>& samples, WMap& weight_map) override;
   void calc_loss_and_gradient(std::vector<float>& gradient,

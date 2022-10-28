@@ -64,7 +64,7 @@ class Worker {
 
 void Worker::Train()  {
   for (auto dir : config_->train_path_list_) {
-    LOG(INFO) << "start to train: " << dir;
+    LOG(INFO) << "train files in: " << dir;
     auto file_list_all = ListFile(dir);
     std::vector<std::string> file_list;
     for (size_t i=0; i<file_list_all.size(); i++) {

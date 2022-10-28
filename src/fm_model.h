@@ -9,7 +9,10 @@
 namespace dist_linear_model {
 struct FMModel : public Worker {
  public:
-  FMModel(std::shared_ptr<ModelConfig> config, int app_id=0, int customer_id=0) : Worker(config, app_id, customer_id) {};
+  FMModel(std::shared_ptr<ModelConfig> config, int app_id=0, int customer_id=0)
+      : Worker(config, app_id, customer_id) {
+        LOG(INFO) << "USING FM model" << std::endl;
+      };
   ~FMModel() {};
   void calc_score(std::vector<float>& scores, std::vector<std::shared_ptr<Sample>>& samples, WMap& weight_map) override;
   void calc_score_fm(std::vector<float>& scores, std::vector<std::shared_ptr<Sample>>& samples, WMap& weight_map,

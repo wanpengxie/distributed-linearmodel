@@ -85,16 +85,18 @@ int main(int argc, char *argv[]) {
   CHECK(NewModelConf(config_file, config, true));
 
   if (ps::IsScheduler()) {
-    std::cout << "test schedule" << std::endl;
+    std::cout << "start schedule" << std::endl;
   }
 
   if (ps::IsServer()) {
+    std::cout << "start server: " << ps::MyRank() << std::endl;
     start_server(config);
   }
 
   if (ps::IsWorker()) {
-    std::cout << "test worker: " << ps::MyRank() << std::endl;
+    std::cout << "start worker: " << ps::MyRank() << std::endl;
     start_worker(config);
+    std::cout << "start worker: " << ps::MyRank() << std::endl;
   }
 
   ps::Finalize(0, true);

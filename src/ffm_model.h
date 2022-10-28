@@ -11,6 +11,7 @@ struct FFMModel : public Worker {
  public:
   FFMModel(std::shared_ptr<ModelConfig> config, int app_id=0, int customer_id=0)
       : Worker(config, app_id, customer_id) {
+        LOG(INFO) << "USING FFM model" << std::endl;
         // initial ffm model
         full_dimension_ = 0;
         field_size_ = 0;
