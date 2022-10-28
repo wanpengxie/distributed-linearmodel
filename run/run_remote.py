@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-"""
-from dmlc submission script
-modify by docker
-"""
 
 import argparse
 import sys
@@ -34,10 +30,6 @@ def sync_workspace(args, local, hosts):
     for h, _, _ in hosts:
         if h == local:
             continue
-            # if os.path.exists(path):
-            #     raise Exception('path: {0} exist'.format(path))
-            # cp_cmd = 'cp -r {0} {1}'.format(args.workspace, os.path.join(args.workdir, workbase))
-            # print (cmd.getoutput(cp_cmd))
         else:
             cp_cmd = "scp -r {0} {2}:{1}".format(path, args.workdir, h)
             print ("scp command: ", cp_cmd)
@@ -45,7 +37,7 @@ def sync_workspace(args, local, hosts):
     return
 
 
-def run_job(run_cmd, env_line, local, hosts):
+def run_job(run_cmd, env_line, local, hosts, root):
     # start schedule
 
     def run(prog):
@@ -57,36 +49,42 @@ def run_job(run_cmd, env_line, local, hosts):
     master_thread.start()
     time.sleep(2)
     ss = []
-    run_cmd = run_cmd + ' > ./log_{job_rank} 2>&1'
+    run_cmd = run_cmd + ' > ./log_{job_rank} 2>&1 &'
     total_s = 0
     total_w = 0
     for h, s, w in hosts:
+        file_name = os.path.join(root, "submit_{0}.sh".format(h))
+        file_handler = open(file_name, 'w')
+        script_line = ""
+        submit_job = "bash {0}".format(file_name)
         if h == local:
             for i in range(s):
                 prog = run_cmd.format(env_line = env_line.format('server'), job_rank='server_{0}'.format(total_s + i))
-                thread = Thread(target=run, args=(prog, ))
-                thread.setDaemon(True)
-                thread.start()
-                ss.append(thread)
+                script_line = script_line + prog + "\n"
             for i in range(w):
                 prog = run_cmd.format(env_line = env_line.format('worker'), job_rank='worker_{0}'.format(total_w + i))
-                thread = Thread(target=run, args=(prog, ))
-                thread.setDaemon(True)
-                thread.start()
-                ss.append(thread)
+                script_line = script_line + prog + "\n"
         else:
             for i in range(s):
-                prog = 'ssh {0}'.format(h) + ' \'' + (run_cmd.format(env_line = env_line.format('server'), job_rank='server_{0}'.format(total_s + i))).replace('\'', '"') + '\''
-                thread = Thread(target=run, args=(prog, ))
-                thread.setDaemon(True)
-                thread.start()
-                ss.append(thread)
+                prog = (run_cmd.format(env_line = env_line.format('server'), job_rank='server_{0}'.format(total_s + i)))
+                script_line = script_line + prog + "\n"
             for i in range(w):
-                prog = 'ssh {0}'.format(h) + ' \'' + (run_cmd.format(env_line = env_line.format('worker'), job_rank='worker_{0}'.format(total_w + i))).replace('\'', '"') + '\''
-                thread = Thread(target=run, args=(prog, ))
-                thread.setDaemon(True)
-                thread.start()
-                ss.append(thread)
+                prog = run_cmd.format(env_line = env_line.format('worker'), job_rank='worker_{0}'.format(total_w + i))
+                script_line = script_line + prog + "\n"
+        script_line += "wait\n"
+        file_handler.write(script_line)
+        file_handler.close()
+        if h != local:
+            cp_cmd = "scp -r {0} {2}:{1}".format(file_name, root, h)
+            print ("scp command: ", cp_cmd)
+            print (cmd.getoutput(cp_cmd))
+            submit_job = "ssh {0}".format(h) + ' \' cd {0} && bash {1} \''.format(root, file_name)
+
+        thread = Thread(target=run, args=(submit_job, ))
+        thread.setDaemon(True)
+        thread.start()
+        ss.append(thread)
+
         total_s += s
         total_w += w
     master_thread.join()
@@ -109,23 +107,12 @@ def main():
 
     args, unknown = parser.parse_known_args()
 
-    # job_dir_name = "{0}_{1}".format(args.jobname, jobid)
-    # job_dir_path = os.path.join(args.workdir, job_dir_name)
-    # run_cmd = 'docker run --rm --network host --name {job_name}_{{job_rank}} {{env_line}} -v {job_dir_path}:/app/workspace \'{image}\' bash /app/workspace/run.sh '.format(
-    #     job_name=job_dir_name,
-    #     job_dir_path=job_dir_path,
-    #     job_dir_name=job_dir_name,
-    #     image=args.docker_image,
-    # )
     job_dir_path = gen_workspace(args)
 
     run_cmd = '{0}'.format(os.path.join(job_dir_path, os.path.basename(args.binary_file)))
-    run_cmd = 'source /opt/mrs_client/bigdata_env && cd {0}'.format(job_dir_path) + ' && {env_line} && ' + run_cmd
+    run_cmd = 'source hadoop_env.sh && cd {0}'.format(job_dir_path) + ' && {env_line} && ' + run_cmd
 
-    # local = 'algo-aml-train3'
-    # local_sever = args.num_servers /
     hostlist = args.host_list.split(',')
-    # hostlist = ['algo-aml-train3', 'algo-aml-train2']
     local = hostlist[0]
     hosts = []
     remain_s, remain_w = args.num_servers, args.num_workers
@@ -146,7 +133,7 @@ def main():
             ]
     env_line = ''.join('export {0}={1} && '.format(x, y) for x, y in envs) + 'export DMLC_ROLE={0} '
     sync_workspace(args, local, hosts)
-    run_job(run_cmd, env_line, local, hosts)
+    run_job(run_cmd, env_line, local, hosts, job_dir_path)
 
 
 if __name__ == '__main__':
