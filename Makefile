@@ -228,6 +228,19 @@ io_test/fast:
 .PHONY : io_test/fast
 
 #=============================================================================
+# Target rules for targets named class_test
+
+# Build rule for target.
+class_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 class_test
+.PHONY : class_test
+
+# fast build rule for target.
+class_test/fast:
+	$(MAKE) -f tests/CMakeFiles/class_test.dir/build.make tests/CMakeFiles/class_test.dir/build
+.PHONY : class_test/fast
+
+#=============================================================================
 # Target rules for targets named metric_test
 
 # Build rule for target.
@@ -252,6 +265,33 @@ config_test: cmake_check_build_system
 config_test/fast:
 	$(MAKE) -f tests/CMakeFiles/config_test.dir/build.make tests/CMakeFiles/config_test.dir/build
 .PHONY : config_test/fast
+
+include/conf/config.pb.o: include/conf/config.pb.cc.o
+
+.PHONY : include/conf/config.pb.o
+
+# target to build an object file
+include/conf/config.pb.cc.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/include/conf/config.pb.cc.o
+.PHONY : include/conf/config.pb.cc.o
+
+include/conf/config.pb.i: include/conf/config.pb.cc.i
+
+.PHONY : include/conf/config.pb.i
+
+# target to preprocess a source file
+include/conf/config.pb.cc.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/include/conf/config.pb.cc.i
+.PHONY : include/conf/config.pb.cc.i
+
+include/conf/config.pb.s: include/conf/config.pb.cc.s
+
+.PHONY : include/conf/config.pb.s
+
+# target to generate assembly for a file
+include/conf/config.pb.cc.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/include/conf/config.pb.cc.s
+.PHONY : include/conf/config.pb.cc.s
 
 src/main.o: src/main.cpp.o
 
@@ -297,8 +337,12 @@ help:
 	@echo "... kv_app_benchmark_test"
 	@echo "... kv_app_multi_workers_test"
 	@echo "... io_test"
+	@echo "... class_test"
 	@echo "... metric_test"
 	@echo "... config_test"
+	@echo "... include/conf/config.pb.o"
+	@echo "... include/conf/config.pb.i"
+	@echo "... include/conf/config.pb.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

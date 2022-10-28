@@ -7,8 +7,10 @@
 #include "model.h"
 
 namespace dist_linear_model {
-struct LRModel : Worker {
+class LRModel : public Worker {
+ public:
   LRModel(std::shared_ptr<ModelConfig> config, int app_id=0, int customer_id=0) : Worker(config, app_id, customer_id) {};
+  ~LRModel() {};
   void calc_score(std::vector<float>& scores, std::vector<std::shared_ptr<Sample>>& samples, WMap& weight_map) override;
   void calc_loss_and_gradient(std::vector<float>& gradient,
                               std::vector<std::shared_ptr<Sample>>& samples,

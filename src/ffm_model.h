@@ -7,7 +7,8 @@
 #include "model.h"
 
 namespace dist_linear_model {
-struct FFMModel : Worker {
+struct FFMModel : public Worker {
+ public:
   FFMModel(std::shared_ptr<ModelConfig> config, int app_id=0, int customer_id=0)
       : Worker(config, app_id, customer_id) {
         // initial ffm model
@@ -19,6 +20,7 @@ struct FFMModel : Worker {
         }
         full_dimension_ = field_size_ * emb_dim_;
       };
+  ~FFMModel(){};
   float calc_ffm_inner_product(std::vector<float> ffm_vec, float norm_sum);
   void calc_score(std::vector<float>& scores, std::vector<std::shared_ptr<Sample>>& samples, WMap& weight_map) override;
   void calc_score_ffm(std::vector<float>& scores, std::vector<std::shared_ptr<Sample>>& samples, WMap& weight_map,

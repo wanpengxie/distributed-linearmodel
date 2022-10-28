@@ -19,6 +19,7 @@ execute_process(COMMAND protoc --proto_path=${config_path} --cpp_out=${config_pa
 include_directories(
         "${PROJECT_SOURCE_DIR}/ps-lite/include"
         "${PROJECT_SOURCE_DIR}/include"
+        "${PROJECT_SOURCE_DIR}/src"
         "${PROTOBUF_INCLUDE_DIR}"
 )
 
@@ -26,8 +27,14 @@ link_directories(
         "${PROJECT_BINARY_DIR}/ps-lite"
 )
 
+link_directories(
+        "${PROJECT_BINARY_DIR}"
+        "${PROJECT_BINARY_DIR}/ps-lite"
+)
+
 add_subdirectory(ps-lite)
 
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp ${config_path}/config.pb.cc)
+target_link_libraries(main pslite)
 
 add_subdirectory(tests)

@@ -17,7 +17,8 @@
 #include "metric/metric.h"
 
 namespace dist_linear_model{
-struct Worker {
+class Worker {
+  public:
   Worker() {};
   Worker(std::shared_ptr<ModelConfig> config, int app_id=0, int customer_id=0) {
     kv_w_ = std::make_shared<ps::KVWorker<float>>(0, 0);
@@ -45,10 +46,10 @@ struct Worker {
   void load_file(std::string& path, bool inc);
   virtual void calc_score(std::vector<float>& scores,
                           std::vector<std::shared_ptr<Sample>>& samples,
-                          WMap& weight_map);
+                          WMap& weight_map) {};
   virtual void calc_loss_and_gradient(std::vector<float>& gradient,
                                       std::vector<std::shared_ptr<Sample>>& samples,
-                                      std::vector<Key>& keys, WMap& model);
+                                      std::vector<Key>& keys, WMap& model) {};
 
   int worker_numbers_ = 1;
   int id_;

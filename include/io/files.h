@@ -5,7 +5,7 @@
 #ifndef DISTLM_INCLUDE_IO_FILES_H_
 #define DISTLM_INCLUDE_IO_FILES_H_
 
-#include <glob.h>
+//#include <glob.h>
 #include <sys/stat.h>
 
 #include <fstream>
@@ -17,6 +17,7 @@
 
 #include "base/string_algo.h"
 #include "shell.h"
+#include "base/functions.h"
 
 namespace dist_linear_model {
 static const uint64_t BUFFERSIZE = 100000;
@@ -92,29 +93,29 @@ void CustomAtoi(const char* str, uint64_t* val, int* index) {
   }
 }
 
-bool glob(const std::string& pattern, std::vector<std::string>& list) {
-  using namespace std;
-  // glob struct resides on the stack
-  glob_t glob_result;
-  memset(&glob_result, 0, sizeof(glob_result));
-
-  int return_value = glob(pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
-  if (return_value != 0) {
-    globfree(&glob_result);
-    stringstream ss;
-    ss << "glob() failed with return_value " << return_value << endl;
-    return false;
-  }
-
-  // collect all the filenames into a std::list<std::string>
-  for (size_t i = 0; i < glob_result.gl_pathc; ++i) {
-    list.push_back(string(glob_result.gl_pathv[i]));
-  }
-  // cleanup
-  globfree(&glob_result);
-  // done
-  return true;
-}
+//bool glob(const std::string& pattern, std::vector<std::string>& list) {
+//  using namespace std;
+//  // glob struct resides on the stack
+//  glob_t glob_result;
+//  memset(&glob_result, 0, sizeof(glob_result));
+//
+//  int return_value = glob(pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
+//  if (return_value != 0) {
+//    globfree(&glob_result);
+//    stringstream ss;
+//    ss << "glob() failed with return_value " << return_value << endl;
+//    return false;
+//  }
+//
+//  // collect all the filenames into a std::list<std::string>
+//  for (size_t i = 0; i < glob_result.gl_pathc; ++i) {
+//    list.push_back(string(glob_result.gl_pathv[i]));
+//  }
+//  // cleanup
+//  globfree(&glob_result);
+//  // done
+//  return true;
+//}
 
 std::vector<std::string> ListFile(const std::string& path) {
   if (path == "") {
