@@ -45,17 +45,16 @@ class Scheduler {
     if (req.head == JOB) {
       mu_.lock();
       auto new_req = SimpleData(req);
+      std::string body;
       if (train_list_.empty()) {
         new_req.head = JOBEND;
-        new_req.body = "NULL";
+        body = "NULL";
       } else {
-        std::string path = train_list_.back();
+        body = train_list_.back();
         train_list_.pop_back();
-        new_req.head = JOB;
-        new_req.body = path;
       }
       mu_.unlock();
-      app->Response(new_req);
+      app->Response(new_req, body);
     }
   }
 

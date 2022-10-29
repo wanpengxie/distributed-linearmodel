@@ -59,8 +59,6 @@ class Worker {
     if (req.head == JOBEND) {
       job_file_ = "NULL";
     }
-    req.head
-    app->Response(req);
   }
 
   int worker_numbers_ = 1;
@@ -84,28 +82,15 @@ void Worker::Train()  {
       LOG(INFO) << "worker[" << id_ << "]finish";
       break;
     }
+    if (job_file_ == "") {
+      LOG(INFO) << "wait";
+      sleep(1);
+    }
     LOG(INFO) << string_format("worker[%d] start to train %s", id_, job_file_.c_str());
     train_file(job_file_);
+    ts = kv_w_->Request(LOGGER, string_format("[%d]finish %s", id_, job_file_.c_str()), kScheduler);
+    kv_w_->Wait(ts);
   }
-//  for (auto dir : config_->train_path_list_) {
-//    LOG(INFO) << "train files in: " << dir;
-//    auto file_list_all = ListFile(dir);
-//    std::vector<std::string> file_list;
-//    for (size_t i=0; i<file_list_all.size(); i++) {
-//      if (i%worker_numbers_ == id_) {
-//        file_list.push_back(file_list_all[i]);
-//      }
-//    }
-//
-//    // train on single file
-//    for (auto p : file_list) {
-//      std::string info = string_format("worker=%d start: %s", id_, p.c_str());
-//      auto ts = kv_w_->Request(JOB, info, kScheduler);
-//      kv_w_->Wait(ts);
-//      LOG(INFO) << "start to train: " << p << ", at worker: " << id_ << std::endl;
-//      train_file(p);
-//    }
-//  }
 }
 
 void Worker::Load() {

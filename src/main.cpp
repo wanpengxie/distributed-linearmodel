@@ -86,11 +86,9 @@ void start_scheduler(std::shared_ptr<ModelConfig> config) {
 //  auto scheduler = new KVServer<float>(0);
 //  scheduler->SimpleApp::set_request_handle(ReqHandle);
 
-  auto scheduler = std::make_shared<Scheduler>();
+  auto scheduler = std::make_shared<Scheduler>(config);
   using namespace std::placeholders;
   scheduler->scheduler_->SimpleApp::set_request_handle(std::bind(&Scheduler::simple_req_handler, scheduler, _1, _2));
-  scheduler->read_lists(config->train_path_list_);
-
 }
 
 int main(int argc, char *argv[]) {
