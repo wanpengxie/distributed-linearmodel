@@ -83,8 +83,9 @@ void Worker::Train()  {
       break;
     }
     if (job_file_ == "") {
-      LOG(INFO) << "wait";
+      LOG(INFO) << "wait, not ready";
       sleep(1);
+      continue ;
     }
     LOG(INFO) << string_format("worker[%d] start to train %s", id_, job_file_.c_str());
     train_file(job_file_);
@@ -111,7 +112,6 @@ void Worker::Load() {
     auto ts = kv_w_->Request(LOGGER, info, kScheduler);
     kv_w_->Wait(ts);
     LOG(INFO) << "worker=" << id_ << " start to load file: " << path;
-
     load_file(path, inc);
   }
 }

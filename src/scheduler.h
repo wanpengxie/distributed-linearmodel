@@ -43,6 +43,10 @@ class Scheduler {
       return ;
     }
     if (req.head == JOB) {
+      if (!not_initial_ready_) {
+        app->Response(req);
+        return ;
+      }
       mu_.lock();
       auto new_req = SimpleData(req);
       std::string body;
