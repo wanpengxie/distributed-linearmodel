@@ -87,10 +87,10 @@ void start_scheduler(std::shared_ptr<ModelConfig> config) {
 //  scheduler->SimpleApp::set_request_handle(ReqHandle);
 
   auto scheduler = std::make_shared<Scheduler>();
-  scheduler->read_lists(config->train_path_list_);
-
   using namespace std::placeholders;
   scheduler->scheduler_->SimpleApp::set_request_handle(std::bind(&Scheduler::simple_req_handler, scheduler, _1, _2));
+  scheduler->read_lists(config->train_path_list_);
+
 }
 
 int main(int argc, char *argv[]) {
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
   std::string config_file = GetEnv("CONF", "");
   auto config = std::make_shared<ModelConfig>();;
   CHECK(LocalExist(config_file)) << "config file not exist, path=" << config_file;
-  CHECK(NewModelConf(config_file, config, true));
+  CHECK(NewModelConf(config_file, config, false));
 
   if (ps::IsScheduler()) {
     std::cout << "start schedule" << std::endl;

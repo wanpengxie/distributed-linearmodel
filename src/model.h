@@ -59,6 +59,7 @@ class Worker {
     if (req.head == JOBEND) {
       job_file_ = "NULL";
     }
+    req.head
     app->Response(req);
   }
 

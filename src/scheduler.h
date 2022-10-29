@@ -20,8 +20,19 @@
 namespace dist_linear_model {
 class Scheduler {
  public:
-  Scheduler(){
+  Scheduler(std::shared_ptr<ModelConfig> config){
       scheduler_ = std::make_shared<KVServer<float>>(0);
+      not_initial_ready_ = false;
+      mu_.lock();
+      for (auto p : config->train_path_list_) {
+        auto files = ListFile(p);
+        for (auto f : files) {
+          train_list_.push_back(f);
+          LOG(INFO) << "add to joblist: " << f;
+        }
+      }
+      not_initial_ready_ = true;
+      mu_.unlock();
   };
 
   void simple_req_handler(const SimpleData& req, SimpleApp* app) {
@@ -34,12 +45,12 @@ class Scheduler {
     if (req.head == JOB) {
       mu_.lock();
       auto new_req = SimpleData(req);
-      if (job_list_.empty()) {
+      if (train_list_.empty()) {
         new_req.head = JOBEND;
         new_req.body = "NULL";
       } else {
-        std::string path = job_list_.back();
-        job_list_.pop_back();
+        std::string path = train_list_.back();
+        train_list_.pop_back();
         new_req.head = JOB;
         new_req.body = path;
       }
@@ -48,25 +59,21 @@ class Scheduler {
     }
   }
 
-  void set_job_list_(std::vector<std::string> vec) {
-    mu_.lock();
-    job_list_ = vec;
-    mu_.unlock();
-  }
-
-  void read_lists(std::vector<std::string> dirs) {
-    mu_.lock();
-    for (auto p : dirs) {
-      auto files = ListFile(p);
-      for (auto f : files) {
-        job_list_.push_back(f);
-        LOG(INFO) << "add to joblist: " << f;
-      }
-    }
-    mu_.unlock();
-  }
+//  void read_lists(std::vector<std::string> dirs) {
+//    mu_.lock();
+//    for (auto p : dirs) {
+//      auto files = ListFile(p);
+//      for (auto f : files) {
+//        train_list_.push_back(f);
+//        LOG(INFO) << "add to joblist: " << f;
+//      }
+//    }
+//    mu_.unlock();
+//  }
   std::shared_ptr<KVServer<float>> scheduler_;
-  std::vector<std::string> job_list_;
+  std::vector<std::string> train_list_;
+  std::vector<std::string> model_list_;
+  bool not_initial_ready_;
   mutable std::mutex mu_;
 };
 }
