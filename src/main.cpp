@@ -14,6 +14,7 @@
 #include "lr_model.h"
 #include "fm_model.h"
 #include "ffm_model.h"
+#include "scheduler.h"
 
 
 using namespace ps;
@@ -47,6 +48,10 @@ void start_server(std::shared_ptr<ModelConfig> config) {
 void start_worker(std::shared_ptr<ModelConfig> config) {
   auto epoch = GetEnv("EPOCH", 1);
   auto worker = create_model(config);
+
+  using namespace std::placeholders;
+  worker->kv_w_->SimpleApp::set_response_handle(std::bind(&Worker::simple_response_process, worker, _1, _2));
+
   if (!config->load_model_path_.empty()) {
     LOG(INFO) << "load model " << config->load_model_path_;
     worker->Load();
@@ -76,14 +81,16 @@ void start_worker(std::shared_ptr<ModelConfig> config) {
   }
 }
 
-void ReqHandle(const SimpleData& req, SimpleApp* app) {
-  LOG(INFO) << req.body;
-  app->Response(req);
-}
 
-void start_scheduler() {
-  auto scheduler = new KVServer<float>(0);
-  scheduler->SimpleApp::set_request_handle(ReqHandle);
+void start_scheduler(std::shared_ptr<ModelConfig> config) {
+//  auto scheduler = new KVServer<float>(0);
+//  scheduler->SimpleApp::set_request_handle(ReqHandle);
+
+  auto scheduler = std::make_shared<Scheduler>();
+  scheduler->read_lists(config->train_path_list_);
+
+  using namespace std::placeholders;
+  scheduler->scheduler_->SimpleApp::set_request_handle(std::bind(&Scheduler::simple_req_handler, scheduler, _1, _2));
 }
 
 int main(int argc, char *argv[]) {
@@ -95,7 +102,7 @@ int main(int argc, char *argv[]) {
 
   if (ps::IsScheduler()) {
     std::cout << "start schedule" << std::endl;
-    start_scheduler();
+    start_scheduler(config);
   }
 
   if (ps::IsServer()) {

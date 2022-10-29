@@ -1,0 +1,73 @@
+//
+// Created by xiewanpeng on 2022/10/29.
+//
+
+#ifndef DISTLM_SRC_SCHEDULER_H_
+#define DISTLM_SRC_SCHEDULER_H_
+
+#include <unistd.h>
+
+#include "ps/ps.h"
+#include "data/dataloader.h"
+#include "base/string_algo.h"
+#include "base/utils.h"
+#include "base/functions.h"
+#include "conf/model_config.h"
+#include "io/files.h"
+#include "io/shell.h"
+#include "metric/metric.h"
+
+namespace dist_linear_model {
+class Scheduler {
+ public:
+  Scheduler(){
+      scheduler_ = std::make_shared<KVServer<float>>(0);
+  };
+
+  void simple_req_handler(const SimpleData& req, SimpleApp* app) {
+    // LOG(INFO) << req.body;
+    if (req.head == LOGGER) {
+      LOG(INFO) << req.body;
+      app->Response(req);
+      return ;
+    }
+    if (req.head == JOB) {
+      mu_.lock();
+      auto new_req = SimpleData(req);
+      if (job_list_.empty()) {
+        new_req.head = JOBEND;
+        new_req.body = "NULL";
+      } else {
+        std::string path = job_list_.back();
+        job_list_.pop_back();
+        new_req.head = JOB;
+        new_req.body = path;
+      }
+      mu_.unlock();
+      app->Response(new_req);
+    }
+  }
+
+  void set_job_list_(std::vector<std::string> vec) {
+    mu_.lock();
+    job_list_ = vec;
+    mu_.unlock();
+  }
+
+  void read_lists(std::vector<std::string> dirs) {
+    mu_.lock();
+    for (auto p : dirs) {
+      auto files = ListFile(p);
+      for (auto f : files) {
+        job_list_.push_back(f);
+        LOG(INFO) << "add to joblist: " << f;
+      }
+    }
+    mu_.unlock();
+  }
+  std::shared_ptr<KVServer<float>> scheduler_;
+  std::vector<std::string> job_list_;
+  mutable std::mutex mu_;
+};
+}
+#endif  // DISTLM_SRC_SCHEDULER_H_
