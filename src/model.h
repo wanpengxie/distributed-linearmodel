@@ -30,7 +30,7 @@ class Worker {
     emb_dim_ = config->dim_;
     async_step_ = config->async_step_;
     batch_size_ = config->batch_size_;
-    job_file_ = "NULL";
+    job_file_ = "";
   }
   ~Worker() {}
 

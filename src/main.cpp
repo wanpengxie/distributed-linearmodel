@@ -27,6 +27,8 @@ std::shared_ptr<Worker> create_model(std::shared_ptr<ModelConfig> config) {
     return std::make_shared<FMModel>(config);
   } else if (config->model_name_ == "ffm") {
     return std::make_shared<FFMModel>(config);
+  } else {
+    LOG(FATAL) << "no model name or model name error";
   }
 }
 
